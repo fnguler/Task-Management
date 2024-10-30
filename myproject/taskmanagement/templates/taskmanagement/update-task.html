@@ -1,0 +1,25 @@
+{% extends 'taskmanagement/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<h1 class="title">kira.</h1>
+
+<div class="container" id="container">
+    <form id="createTaskForm" action="" method="POST" autocomplete="off">
+        {% csrf_token %}
+        {{ createTaskForm|crispy }}
+
+        <br>
+        <div class="button-container">
+            {% if can_update_task %}
+                <button type="submit" name="updateTask" class="update-task-btn" style="background-color: #157145; color: white;">Save Changes</button>
+            {% endif %}
+            {% if can_delete_task %}
+                <button type="submit" name="deleteTask" class="delete-task-btn" style="background-color: rgb(153, 44, 44); color: white;">Delete</button>
+            {% endif %}
+        </div>
+        <br>
+        </form>
+</div>
+{% endblock %}

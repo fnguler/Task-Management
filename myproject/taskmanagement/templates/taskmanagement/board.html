@@ -1,0 +1,205 @@
+{% extends 'taskmanagement/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .tasks-in-btn {
+        margin-bottom: 20px;
+    }
+
+    .task-input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: calc(100% - 120px);
+        margin-right: 10px;
+    }
+
+    .add-task-btn {
+        padding: 20px 40px;
+        background-color: #6a8eae;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .add-task-btn:hover {
+        background-color: #6a8eae; 
+    }
+
+    .overlay-task-card {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .task-card {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 15px; 
+        border-radius: 5px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 80%;
+        z-index: 1000;
+        overflow-y: auto;
+    }
+    
+    .close-btn {
+        cursor: pointer;
+        color: #6a8eae;
+        text-align: right;
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    h3 {
+        margin: 0 0 15px;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .create-task-btn {
+        padding: 10px 15px;
+        background-color: #6a8eae;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .create-task-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .form-errors {
+        color: red;
+        margin-bottom: 15px;
+        background-color: #ffe6e6;
+        border: 1px solid red;
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    input, textarea, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-top: 5px;
+        box-sizing: border-box;
+    }
+
+    input:focus, textarea:focus, select:focus {
+        border-color: #9bd1e5; 
+        outline: none; 
+    }
+</style>
+
+
+<div class="tasks-in-btn">
+    {% if can_create_task %}
+        <button class="add-task-btn" onclick="toggleTaskCard()">
+            Add Task
+        </button>
+    {% endif %}
+</div>
+
+<div class="overlay-task-card" id="overlay-task-card" onclick="toggleTaskCard()"></div>
+
+<div class="task-card" id="taskCard">
+    <div class="close-btn" onclick="toggleTaskCard()">✖ Close</div>
+    <form id="createTaskForm" action="{% url 'board' %}" method="POST" autocomplete="off">
+        {% csrf_token %}
+        {{ createTaskForm|crispy }}
+        <button type="submit" name="createTaskForm_submit" class="create-task-btn">Add Task</button>
+    </form>
+</div>
+
+<script>
+    function toggleTaskCard() {
+        
+        const taskCard = document.getElementById('taskCard');
+        const overlayTaskCard = document.getElementById('overlay-task-card');
+        const isVisible = taskCard.style.display === 'block';
+
+        taskCard.style.display = isVisible ? 'none' : 'block';
+        overlayTaskCard.style.display = isVisible ? 'none' : 'block';
+    }
+</script>
+
+
+
+
+<div class="board">
+    <div class="column" id="todo" ondrop="drop(event, 'todo')" ondragover="allowDrop(event)">
+        <h2>Todo</h2>
+        <hr>
+        <div class="task-container">
+            {% if tasksToDo %}
+                {% for task in tasksToDo %}
+                    <div class="task" id="task-{{ task.id }}" draggable="true" ondragstart="drag(event)" ondblclick="updateTask('{{ task.id }}')">
+                        {{task.project_id_fk}}-{{task.id}}
+                        <br><br>
+                        {{ task.title }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="column" id="in-progress" ondrop="drop(event, 'in-progress')" ondragover="allowDrop(event)">
+        <h2>In Progress</h2>
+        <hr>
+        <div class="task-container">
+            {% if tasksInProgress %}
+                {% for task in tasksInProgress %}
+                    <div class="task" id="task-{{ task.id }}" draggable="true" ondragstart="drag(event)" ondblclick="updateTask('{{ task.id }}')">
+                        {{task.project_id_fk}}-{{task.id}}
+                        <br><br>
+                        {{ task.title }}
+
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="column" id="done" ondrop="drop(event, 'done')" ondragover="allowDrop(event)">
+        <h2>Done</h2>
+        <hr>
+        <div class="task-container">
+            {% if tasksDone %}
+                {% for task in tasksDone %}
+                    <div class="task" id="task-{{ task.id }}" draggable="true" ondragstart="drag(event)" ondblclick="updateTask('{{ task.id }}')">
+                        {{task.project_id_fk}}-{{task.id}}
+                        <br><br>
+                        {{ task.title }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateTask(taskId) {
+        window.location.href = '/update-task/' + taskId; 
+    }
+</script>
+{% endblock %}

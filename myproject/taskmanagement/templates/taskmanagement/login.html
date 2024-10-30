@@ -1,0 +1,47 @@
+{% extends 'taskmanagement/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<h1 class="title">kira.</h1>
+
+<div class="container" id="container">
+	<div class="form-container sign-up-container">
+		<form id = "register_form" action="{% url 'login' %}" method = "POST" autocomplete="off" >
+            {% csrf_token %}
+			<h1>Create Account</h1>
+            {{ registerForm|crispy}}
+            <button type="submit" name="registerForm_submit">Sign Up</button>
+			<p class="error" id="registerError" style="display: none; color: rgb(154, 7, 7);">Please fill in all fields.</p>
+		</form>
+	</div>
+	<div class="form-container sign-in-container">
+		<form id = "login_form" action="{% url 'login' %}" method = "POST" autocomplete="off" >
+            {% csrf_token %}
+
+			<h1>Sign in</h1>
+            {{ loginForm|crispy}}
+        <button type="submit" name="loginForm_submit">Sign In</button>
+			<p class="error" id="loginError" style="display: none; color: rgb(154, 7, 7);">Please fill in all fields.</p>
+    
+		</form>
+	</div>
+	<div class="overlay-container">
+		<div class="overlay">
+			<div class="overlay-panel overlay-left">
+				<h1>Welcome back!</h1>
+				<p>To stay organized, please login with your personal info.</p>
+				<button class="ghost" id="login">Sign In</button>
+			</div>
+			<div class="overlay-panel overlay-right">
+				<h1>Welcome aboard!</h1>
+				<p>Enter your details to start your productivity journey with us!</p>
+				<button class="ghost" id="register">Sign Up</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="{% static 'js/mainScript.js' %}"></script>
+
+{% endblock %}
